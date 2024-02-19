@@ -7,10 +7,10 @@ class View {
 
   render() {
     const yourTeamName = 'Elbrus';
-
     // Тут всё рисуем.
     console.clear();
     console.log(this.game.track.join(''));
+    console.log("Deaths number: ", this.game.countEnemyDeaths)
     console.log('\n\n');
     console.log(`Created by "${yourTeamName}" with love`);
   }

@@ -2,11 +2,15 @@
 // Или можно не импортировать,
 // а передавать все нужные объекты прямо из run.js при инициализации new Game().
 
+
+
 const Hero = require('./game-models/Hero');
 const Enemy = require('./game-models/Enemy');
 // const Boomerang = require('./game-models/Boomerang');
 const View = require('./View');
 const Boomerang = require('./game-models/Boomerang');
+const  popGame_result_bd = require('./game_results')
+
 
 // Основной класс игры.
 // Тут будут все настройки, проверки, запуск.
@@ -20,6 +24,7 @@ class Game {
     this.view = new View(this);
     this.track = [];
     this.regenerateTrack();
+    this.countEnemyDeaths = 0
   }
 
   regenerateTrack() {
@@ -57,18 +62,77 @@ class Game {
     }, 100); // Вы можете настроить частоту обновления игрового цикла
   }
 
-  handleCollisions() {
+   async  handleCollisions() {
     if (this.hero.position === this.enemy.position) {
       this.hero.die();
+      //reset to 0 count for new game
+       await popGame_result_bd(null, this.countEnemyDeaths, null)
+       this.countEnemyDeaths = 0
+       process.exit()
     }
 
     if (this.boomerang.position === this.enemy.position) {
       this.enemy.die();
       // Обнуляем позицию бумеранга после столкновения с врагом
       // this.boomerang.position = -1;
+
+      //count deths
+      this.countEnemyDeaths +=1;
       this.enemy = new Enemy(this.trackLength); // Создаем нового врага
     }
   }
 }
 
+
+
 module.exports = Game;
+
+
+//////////////////////////////////
+
+// const readline = require('readline');
+// const { Sequelize, DataTypes } = require('sequelize');
+// const db = require("../models");
+
+// // Функция для регистрации пользователя
+// async function registerUser() {
+//   try {
+//     // Инициализация интерфейса для ввода/вывода
+
+//     const rl = readline.createInterface({
+//       input: process.stdin,
+//       output: process.stdout
+//     });
+    
+//     // Инициализация объекта Sequelize
+//     const sequelize = new Sequelize({
+//       dialect: 'postgres',
+//       storage: 'postgres' // Имя файла базы данных
+//     });
+
+
+//     // Получение данных от пользователя
+//     const name = await askQuestion('Введите имя пользователя: ');
+//     const password = await askQuestion('Введите пароль: ');
+
+//     // Создание записи в базе данных
+//     await db.User.create({ name, password });
+
+//     console.log('Пользователь успешно зарегистрирован!');
+//     rl.close(); // Закрытие интерфейса ввода/вывода
+//   } catch (error) {
+//     console.error('Ошибка при регистрации пользователя:', error);
+//   }
+// }
+
+// // Функция для задания вопроса и получения ответа от пользователя
+// function askQuestion(question) {
+//   return new Promise((resolve, reject) => {
+//     rl.question(question, (answer) => {
+//       resolve(answer);
+//     });
+//   });
+// }
+
+// // Запуск регистрации пользователя
+// registerUser();
